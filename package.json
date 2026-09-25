@@ -1,0 +1,49 @@
+{
+  "name": "monitora-relatos-alm-react",
+  "private": true,
+  "version": "0.8.0",
+  "type": "module",
+  "description": "SPA do Monitora Relatos ALM (ContÁgil / e-Navegador, Python/JEP)",
+  "scripts": {
+    "dev": "vite",
+    "dev:mock": "vite --mode mock",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "deploy": "node scripts/deploy-frontend.mjs"
+  },
+  "dependencies": {
+    "@tanstack/react-form": "^1.33.5",
+    "@tanstack/react-query": "^5.103.2",
+    "@tanstack/react-table": "^9.2.4",
+    "lucide-react": "^1.48.0",
+    "nfse-ds": "file:../NFSe/nfse-ds",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router": "^8.4.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "archiver": "^8.0.0",
+    "eslint": "^10.11.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.12.0",
+    "jsdom": "^29.1.1",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~5.9",
+    "typescript-eslint": "^8.70.1",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
+  }
+}

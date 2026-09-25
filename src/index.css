@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@import "nfse-ds/nfse-tailwind.css";
+
+body {
+  font-family: var(--nfse-font-sans, system-ui, sans-serif);
+}
