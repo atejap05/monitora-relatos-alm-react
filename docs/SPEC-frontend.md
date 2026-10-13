@@ -84,7 +84,7 @@ Colunas: Nº ALM · Título · Status ALM · Última consulta · Anotações · 
 | RUI | Requisito | RF |
 |-----|-----------|----|
 | RUI-12 | Atualizar um relato consulta o ALM e mostra toast "atualizado" / "sem mudanças" / erro | RF-07 |
-| RUI-13 | **Editar**: anotações e observações (até 2000 caracteres cada, com contador, e vazio limpa). Funciona sem sessão | RF-15 |
+| RUI-13 | **Editar**: anotações (até 2000 caracteres, com contador, e vazio limpa). "Observações" saiu na M8. Funciona sem sessão | RF-15 |
 | RUI-14 | **Excluir**: confirmação dizendo que o relato continua no ALM e avisando se há anotações que serão perdidas | RF-16 |
 
 ### 2.5 Varredura (`BarraVarredura`)
@@ -130,6 +130,7 @@ Detalhe em `vsrun/.../SPEC.md` §3.3 e `roadmap.md` §P5+. Resumo do lado da tel
 | RUI-25 | M5 | Coluna Tester e campo tester no cadastro e na edição, com sugestões (`TextField` + `<datalist>`; o `Combobox` do nfse-ds não aceita texto livre) | RF-22 |
 | RUI-26 | M6 | Menu da demanda (Editar · Exportar · Excluir), descrição abaixo das abas e exclusão em cascata com contagem | RF-23..RF-25 |
 | RUI-27 | M7 | Diálogo Exportar (resumo, caminhos gravados, copiar), selo "Homologação concluída" e "Exportar e excluir" | RF-26, RF-27 |
+| RUI-28 | M8 | Campo Anotações opcional no cadastro (vale para o lote; em branco preserva). A edição fica com um campo só (sai "Observações") | RF-15 |
 
 ## 6. Critérios de aceite da SPA
 

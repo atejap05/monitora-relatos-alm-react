@@ -67,8 +67,9 @@ describe("MockBackend", () => {
     await autenticar();
     await pedir({ acao: "cadastrar_relatos", demandaId: "demanda-b", numerosAlm: ["5483739"] });
 
-    const editado = await pedir({ acao: "editar_relato", numeroAlm: "5483739", anotacoes: " nota ", observacoes: "" });
-    expect(editado.relato).toMatchObject({ anotacoes: "nota", observacoes: null });
+    const editado = await pedir({ acao: "editar_relato", numeroAlm: "5483739", anotacoes: " nota " });
+    expect(editado.relato).toMatchObject({ anotacoes: "nota" });
+    expect(editado.relato).not.toHaveProperty("observacoes");
 
     const longo = await pedir({ acao: "editar_relato", numeroAlm: "5483739", anotacoes: "x".repeat(2001) });
     expect(longo).toMatchObject({ ok: false, erro: "texto-longo" });
@@ -168,6 +169,39 @@ describe("MockBackend", () => {
 
     const varrido = await pedir({ acao: "atualizar_todos" });
     expect(nomes(varrido)["5477222"]).toBe("Fulano de Tal");
+  });
+
+  it("anotação no cadastro: vale para o lote, vazia preserva, longa recusa o lote", async () => {
+    const { pedir, autenticar } = criar({ varreduraAoAbrir: false });
+    await autenticar();
+    type Lista = { numeroAlm: string; anotacoes?: string | null; anotacoesAtualizadasEm?: string | null }[];
+    const notas = (r: Resp) => Object.fromEntries((r.relatos as Lista).map((x) => [x.numeroAlm, x.anotacoes ?? null]));
+
+    const lote = await pedir({
+      acao: "cadastrar_relatos",
+      demandaId: "demanda-a",
+      numerosAlm: ["5477222", "5483739"],
+      anotacoes: "  cobrar retorno ",
+    });
+    expect(notas(lote)).toEqual({ "5477222": "cobrar retorno", "5483739": "cobrar retorno" });
+    expect((lote.relatos as Lista).every((x) => Boolean(x.anotacoesAtualizadasEm))).toBe(true);
+
+    const recadastro = await pedir({
+      acao: "cadastrar_relatos",
+      demandaId: "demanda-a",
+      numerosAlm: ["5477222"],
+      anotacoes: "",
+    });
+    expect(notas(recadastro)["5477222"]).toBe("cobrar retorno");
+
+    const longo = await pedir({
+      acao: "cadastrar_relatos",
+      demandaId: "demanda-a",
+      numerosAlm: ["5489614"],
+      anotacoes: "x".repeat(2001),
+    });
+    expect(longo).toMatchObject({ ok: false, erro: "texto-longo" });
+    expect(Object.keys(notas(await pedir({ acao: "carregar_estado" })))).not.toContain("5489614");
   });
 
   it("cria demanda com slug e recusa nome vazio", async () => {

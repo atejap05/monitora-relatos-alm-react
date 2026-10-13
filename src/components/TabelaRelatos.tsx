@@ -91,12 +91,6 @@ function UltimaConsulta({ relato }: { relato: Relato }) {
   );
 }
 
-function textoAnotacoes(r: Relato): string {
-  return [r.anotacoes && `Anotações: ${r.anotacoes}`, r.observacoes && `Observações: ${r.observacoes}`]
-    .filter(Boolean)
-    .join("\n\n");
-}
-
 export function TabelaRelatos(props: TabelaRelatosProps) {
   const {
     relatos,
@@ -160,18 +154,18 @@ export function TabelaRelatos(props: TabelaRelatosProps) {
           sortFn: "text",
           cell: (info) => <UltimaConsulta relato={info.row.original} />,
         }),
-        helper.accessor((r) => [r.anotacoes, r.observacoes].filter(Boolean).join(" "), {
+        helper.accessor((r) => r.anotacoes ?? "", {
           id: "anotacoes",
           header: "Anotações",
           enableSorting: false,
           cell: (info) => {
-            const texto = textoAnotacoes(info.row.original);
+            const texto = info.getValue();
             if (!texto) return <span className="text-gray-500">—</span>;
             return (
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span className="line-clamp-2 max-w-64 cursor-help whitespace-pre-line text-sm">
-                    {info.row.original.anotacoes || info.row.original.observacoes}
+                    {texto}
                   </span>
                 </TooltipTrigger>
                 <TooltipContent className="max-w-96 whitespace-pre-line">{texto}</TooltipContent>

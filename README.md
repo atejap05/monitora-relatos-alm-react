@@ -13,7 +13,7 @@ O backend é o script `MonitoraRelatosAlm.py` (Python/JEP) + anexos `AUTH`/`OSLC
 
 - Demandas **A, B e C** (placeholders até a P6 trazer as abas da planilha) e **Nova demanda**.
 - Por relato: **Cadastrar** (um ou vários), **Atualizar** (um, a demanda ou todas), **Editar**
-  anotações/observações (só no JSON local) e **Excluir** da lista. No ALM é só leitura (GET).
+  anotações (só no JSON local; também no cadastro) e **Excluir** da lista. No ALM é só leitura (GET).
 - Autenticação ALM com status ao vivo, varredura ao abrir com barra de progresso, Persona e **Fechar**.
 
 ## Stack

@@ -56,7 +56,7 @@ export function DialogExcluirDemanda({ demanda, onClose, onExcluida, onExportar 
               {demanda.totalMonitorados > 0 && (
                 <>
                   {" "}
-                  Anotações, observações e tester desses relatos são apagados junto. Os relatos{" "}
+                  Anotações e tester desses relatos são apagados junto. Os relatos{" "}
                   <strong>continuam no ALM</strong>, sem nenhuma alteração.
                 </>
               )}

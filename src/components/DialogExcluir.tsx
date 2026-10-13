@@ -9,7 +9,7 @@ interface Props {
 
 export function DialogExcluir({ relato, onClose }: Props) {
   const excluir = useExcluirRelato();
-  const temAnotacoes = Boolean(relato?.anotacoes || relato?.observacoes);
+  const temAnotacoes = Boolean(relato?.anotacoes);
 
   return (
     <Dialog open={relato !== null} onOpenChange={(v) => !v && !excluir.isPending && onClose()}>
@@ -40,7 +40,7 @@ export function DialogExcluir({ relato, onClose }: Props) {
           </Typography>
           {temAnotacoes && (
             <Typography variant="caption" className="mt-2 block">
-              As anotações e observações deste relato serão apagadas junto.
+              As anotações deste relato serão apagadas junto.
             </Typography>
           )}
         </DialogContent>

@@ -28,7 +28,7 @@ não usados. Antes de criar um componente próprio, procure no `nfse-ds`.
 | `BadgeStatus` | `relato` | `Badge`, `Tooltip*` | Cor por `categoriaStatus` (`lib/categorias.ts`); `data-categoria` para teste |
 | `ResumoCategorias` | `relatos` | `Badge` | Contagem por categoria (`contarCategorias`); oculta categorias vazias. Reuso previsto na M7 |
 | `DialogCadastro` | `aberto`, `onOpenChange`, `demandaId`, `demandaNome`, `sugestoesTester` | `Dialog*`, `TextArea`, `Button` | TanStack Form. Valida o lote com `analisarLote`; tester opcional para o lote (M5) |
-| `DialogEditar` | `relato \| null`, `onClose`, `sugestoesTester` | `Dialog*`, `TextArea` | Monta o form só com o relato (valores iniciais corretos). Tester, anotações e observações |
+| `DialogEditar` | `relato \| null`, `onClose`, `sugestoesTester` | `Dialog*`, `TextArea` | Monta o form só com o relato (valores iniciais corretos). Tester e anotações |
 | `CampoTester` | `value`, `onChange`, `onBlur?`, `sugestoes`, `erro?`, `dica?` | `TextField` | M5. Texto livre + `<datalist>` nativo (o `Combobox` do nfse-ds só aceita valores da lista). Contador pelo texto normalizado (`lib/tester.ts`) |
 | `DialogExcluir` | `relato \| null`, `onClose` | `Dialog*` | Avisa que o relato continua no ALM |
 | `DialogDemanda` | `aberto`, `onOpenChange`, `demandas`, `demanda?`, `onGravada?` | `Dialog*`, `TextField`, `TextArea` | M6. Criar (sem `demanda`) ou editar. Nome até 80 e descrição até 500 com contador; duplicada pelo slug do **nome** das outras demandas (`lib/demandas.ts`). Substitui `DialogNovaDemanda` |

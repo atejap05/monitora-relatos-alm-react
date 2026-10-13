@@ -84,8 +84,17 @@ export function useExcluirDemanda() {
 
 export function useCadastrar() {
   return useMutation({
-    mutationFn: ({ demandaId, numeros, testerNome }: { demandaId: string; numeros: string[]; testerNome?: string }) =>
-      backend.cadastrarRelatos(demandaId, numeros, testerNome),
+    mutationFn: ({
+      demandaId,
+      numeros,
+      testerNome,
+      anotacoes,
+    }: {
+      demandaId: string;
+      numeros: string[];
+      testerNome?: string;
+      anotacoes?: string;
+    }) => backend.cadastrarRelatos(demandaId, numeros, testerNome, anotacoes),
     onSuccess: (r) => {
       aplicar(r);
       const ok = r.resultados.filter((x) => x.ok);
@@ -127,12 +136,22 @@ export function useAtualizarTodos() {
 
 export function useEditarRelato() {
   return useMutation({
-    mutationFn: (v: { numeroAlm: string; anotacoes: string; observacoes: string; testerNome: string }) =>
-      backend.editarRelato(v.numeroAlm, v.anotacoes, v.observacoes, v.testerNome),
+    mutationFn: (v: { numeroAlm: string; anotacoes: string; testerNome: string }) =>
+      backend.editarRelato(v.numeroAlm, v.anotacoes, v.testerNome),
     onSuccess: (r) => {
       aplicar(r);
       toast.success(`${r.relato.numeroAlm}: alterações gravadas.`);
     },
+    onError: aoErrar,
+  });
+}
+
+/** Grava o atalho na área de trabalho. Não muda a lista: sem definirEstado. */
+export function useCriarAtalho() {
+  return useMutation({
+    mutationFn: backend.criarAtalho,
+    onSuccess: (r) =>
+      toast.success(r.recriado ? "Atalho da área de trabalho atualizado." : "Atalho criado na área de trabalho."),
     onError: aoErrar,
   });
 }

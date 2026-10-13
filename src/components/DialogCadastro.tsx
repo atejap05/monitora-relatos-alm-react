@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { Button, Dialog, DialogContent, TextArea, Typography } from "nfse-ds";
 import { useCadastrar } from "@/hooks/useAcoes";
-import { analisarLote } from "@/lib/numeros";
+import { analisarLote, MAX_TEXTO_ANOTACAO, validarAnotacao } from "@/lib/numeros";
 import { validarTester } from "@/lib/tester";
 import { CampoTester } from "./CampoTester";
 
@@ -27,11 +27,16 @@ function validar(texto: string): string | undefined {
 export function DialogCadastro({ aberto, onOpenChange, demandaId, demandaNome, sugestoesTester }: Props) {
   const cadastrar = useCadastrar();
   const form = useForm({
-    defaultValues: { numeros: "", tester: "" },
+    defaultValues: { numeros: "", tester: "", anotacoes: "" },
     onSubmit: async ({ value, formApi }) => {
       const { validos } = analisarLote(value.numeros);
       try {
-        await cadastrar.mutateAsync({ demandaId, numeros: validos, testerNome: value.tester });
+        await cadastrar.mutateAsync({
+          demandaId,
+          numeros: validos,
+          testerNome: value.tester,
+          anotacoes: value.anotacoes,
+        });
       } catch {
         return; // o toast de erro já saiu em useCadastrar; o diálogo fica aberto
       }
@@ -113,6 +118,27 @@ export function DialogCadastro({ aberto, onOpenChange, demandaId, demandaNome, s
                   sugestoes={sugestoesTester}
                   erro={typeof erro === "string" ? erro : undefined}
                   dica="Opcional; vale para todos os números. Em branco, quem já está na lista mantém o nome."
+                />
+              );
+            }}
+          </form.Field>
+          <form.Field name="anotacoes" validators={{ onChange: ({ value }) => validarAnotacao(value) }}>
+            {(field) => {
+              const erro = field.state.meta.errors[0];
+              const tamanho = field.state.value.trim().length;
+              return (
+                <TextArea
+                  label="Anotações"
+                  rows={3}
+                  value={field.state.value}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  onBlur={field.handleBlur}
+                  error={Boolean(erro)}
+                  hint={
+                    typeof erro === "string"
+                      ? erro
+                      : `Opcional; vale para todos os números. Em branco, quem já está na lista mantém a anotação. ${tamanho}/${MAX_TEXTO_ANOTACAO} caracteres`
+                  }
                 />
               );
             }}

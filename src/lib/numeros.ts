@@ -3,6 +3,11 @@ export const ID_ALM_MIN = 1;
 export const ID_ALM_MAX = 2147483647;
 export const MAX_TEXTO_ANOTACAO = 2000;
 
+/** Validador do campo Anotações (cadastro e edição): devolve a mensagem ou `undefined`. */
+export function validarAnotacao(valor: string): string | undefined {
+  return valor.trim().length > MAX_TEXTO_ANOTACAO ? `Máximo de ${MAX_TEXTO_ANOTACAO} caracteres.` : undefined;
+}
+
 export type Validacao = { ok: true; numero: string } | { ok: false; mensagem: string };
 
 export function validarNumeroAlm(bruto: string): Validacao {

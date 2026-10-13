@@ -46,7 +46,6 @@ export interface Relato {
   ultimaSincronizacaoSheets?: string | null;
   linhaSheets?: number | null;
   anotacoes?: string | null;
-  observacoes?: string | null;
   anotacoesAtualizadasEm?: string | null;
   /** Tester responsável (RF-22), normalizado pelo STORE. Na P6 a planilha prevalece. */
   testerNome?: string | null;
@@ -127,6 +126,12 @@ export interface RespostaAbrirNoAlm {
   url: string;
 }
 
+/** Não muda o estado: sem envelope. O caminho do .lnk não volta (RF-28). */
+export interface RespostaCriarAtalho {
+  ok: true;
+  recriado: boolean;
+}
+
 /** Recusa ou falha. Quando a recusa mudou a lista (404 que remove), o estado vem junto. */
 export interface RespostaErro extends Partial<Estado> {
   ok: false;
@@ -145,18 +150,24 @@ export type Payload =
   | { acao: "editar_demanda"; demandaId: string; nome: string; descricao?: string | null }
   | { acao: "excluir_demanda"; demandaId: string }
   | { acao: "exportar_demanda"; demandaId: string }
-  | { acao: "cadastrar_relatos"; demandaId: string; numerosAlm: string[]; testerNome?: string | null }
+  | {
+      acao: "cadastrar_relatos";
+      demandaId: string;
+      numerosAlm: string[];
+      testerNome?: string | null;
+      anotacoes?: string | null;
+    }
   | { acao: "atualizar_relato"; demandaId?: string; numeroAlm: string }
   | { acao: "atualizar_todos"; demandaId?: string }
   | {
       acao: "editar_relato";
       numeroAlm: string;
       anotacoes?: string | null;
-      observacoes?: string | null;
       testerNome?: string | null;
     }
   | { acao: "excluir_relato"; numeroAlm: string }
-  | { acao: "abrir_no_alm"; numeroAlm: string };
+  | { acao: "abrir_no_alm"; numeroAlm: string }
+  | { acao: "criar_atalho" };
 
 export type Evento =
   | { tipo: "fase"; fase: Fase }

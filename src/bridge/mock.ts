@@ -1,5 +1,5 @@
 // Backend em memória para `npm run dev:mock` e testes. Imita as regras de
-// MonitoraRelatosAlm.py 0.9.0 + STORE: fases, ocupado-*, eventos, faixa do ID, 404 sem gravar, tester,
+// MonitoraRelatosAlm.py 0.11.0 + STORE: fases, ocupado-*, eventos, faixa do ID, 404 sem gravar, tester,
 // CRUD de demandas com semeadura única, exportação (caminhos simulados; id com "falha-exportacao" falha).
 //
 // Números especiais:
@@ -92,6 +92,14 @@ function erroTester() {
   return erro("texto-longo", `O nome do tester aceita ate ${MAX_TEXTO_TESTER} caracteres`);
 }
 
+function anotacaoLonga(texto: string | null | undefined): boolean {
+  return texto != null && texto.trim().length > MAX_TEXTO_ANOTACAO;
+}
+
+function erroAnotacao() {
+  return erro("texto-longo", `Anotacoes aceitam ate ${MAX_TEXTO_ANOTACAO} caracteres`);
+}
+
 /** Como STORE._validar_demanda. Devolve o erro ou os textos normalizados. */
 function validarDemanda(
   demandas: DemandaGuardada[],
@@ -125,6 +133,7 @@ export class MockBackend {
   private varrendo = false;
   private parar = false;
   private varreuAoAbrir = false;
+  private atalhoCriado = false;
   private dados: Guardado;
   private readonly op: Required<Omit<OpcoesMock, "storage">> & { storage: Storage | null };
 
@@ -146,7 +155,12 @@ export class MockBackend {
   private ler(): Guardado {
     try {
       const texto = this.op.storage?.getItem(CHAVE_STORAGE);
-      if (texto) return JSON.parse(texto) as Guardado;
+      if (texto) {
+        const guardado = JSON.parse(texto) as Guardado;
+        // Como STORE.snapshot_de_json: o campo observacoes foi extinto (M8) e é descartado.
+        for (const r of guardado.relatos ?? []) delete (r as Relato & { observacoes?: unknown }).observacoes;
+        return guardado;
+      }
     } catch {
       // storage indisponível ou corrompido: começa vazio
     }
@@ -396,14 +410,10 @@ export class MockBackend {
         if (!v.ok) return erro("id-invalido", v.mensagem);
         const relato = this.acharRelato(v.numero);
         if (!relato) return erro("relato-desconhecido", "Relato nao esta na lista");
-        const textos = [payload.anotacoes, payload.observacoes];
-        if (textos.some((t) => t != null && t.trim().length > MAX_TEXTO_ANOTACAO)) {
-          return erro("texto-longo", `Anotacoes e observacoes aceitam ate ${MAX_TEXTO_ANOTACAO} caracteres`);
-        }
+        if (anotacaoLonga(payload.anotacoes)) return erroAnotacao();
         if (testerLongo(payload.testerNome)) return erroTester();
         if (payload.testerNome != null) relato.testerNome = normalizarTester(payload.testerNome) || null;
         if (payload.anotacoes != null) relato.anotacoes = payload.anotacoes.trim() || null;
-        if (payload.observacoes != null) relato.observacoes = payload.observacoes.trim() || null;
         relato.anotacoesAtualizadasEm = agora();
         this.gravar();
         return this.envelope({ relato: vista(relato) });
@@ -413,6 +423,12 @@ export class MockBackend {
         const v = validarNumeroAlm(String(payload.numeroAlm ?? ""));
         if (!v.ok) return erro("id-invalido", v.mensagem);
         return { ok: true, url: `${URL_ITEM_NAME}${v.numero}` };
+      }
+      case "criar_atalho": {
+        // O script grava o .lnk; o mock só lembra se já criou (RF-28). Sem caminho na resposta.
+        const recriado = this.atalhoCriado;
+        this.atalhoCriado = true;
+        return { ok: true, recriado };
       }
       case "excluir_relato": {
         const v = validarNumeroAlm(String(payload.numeroAlm ?? ""));
@@ -434,10 +450,12 @@ export class MockBackend {
         }
         // Como o STORE: nome longo recusa o lote antes de qualquer consulta.
         if (testerLongo(payload.testerNome)) return erroTester();
+        if (anotacaoLonga(payload.anotacoes)) return erroAnotacao();
         const tester = normalizarTester(payload.testerNome ?? "");
+        const nota = (payload.anotacoes ?? "").trim();
         const resultados: ResultadoLote[] = [];
         for (const bruto of payload.numerosAlm) {
-          const r = await this.cadastrarUm(payload.demandaId, bruto, tester);
+          const r = await this.cadastrarUm(payload.demandaId, bruto, tester, nota);
           resultados.push(r);
           if (r.situacao === "sessao-caiu") break;
         }
@@ -469,7 +487,7 @@ export class MockBackend {
     return erro("acao-desconhecida");
   }
 
-  private async cadastrarUm(demandaId: string, bruto: string, tester: string): Promise<ResultadoLote> {
+  private async cadastrarUm(demandaId: string, bruto: string, tester: string, nota: string): Promise<ResultadoLote> {
     const v = validarNumeroAlm(String(bruto ?? ""));
     if (!v.ok) return { numeroAlm: String(bruto ?? "").trim(), ok: false, erro: "id-invalido", mensagem: v.mensagem };
     if (!this.dados.demandas.some((d) => d.id === demandaId)) {
@@ -486,11 +504,15 @@ export class MockBackend {
     }
     let relato = this.acharRelato(v.numero);
     if (!relato) {
-      relato = { demandaId, numeroAlm: v.numero, anotacoes: null, observacoes: null, testerNome: null };
+      relato = { demandaId, numeroAlm: v.numero, anotacoes: null, testerNome: null };
       this.dados.relatos.push(relato);
     }
     relato.demandaId = demandaId;
     if (tester) relato.testerNome = tester; // vazio preserva o nome já gravado
+    if (nota && relato.anotacoes !== nota) {
+      relato.anotacoes = nota; // vazia preserva a anotação já gravada
+      relato.anotacoesAtualizadasEm = agora();
+    }
     this.aplicar(relato, r);
     this.gravar();
     return { numeroAlm: v.numero, ok: true, situacao: r.situacao, relato: vista(relato) };

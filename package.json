@@ -1,7 +1,7 @@
 {
   "name": "monitora-relatos-alm-react",
   "private": true,
-  "version": "0.8.0",
+  "version": "0.10.0",
   "type": "module",
   "description": "SPA do Monitora Relatos ALM (ContÁgil / e-Navegador, Python/JEP)",
   "scripts": {

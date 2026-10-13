@@ -3,7 +3,7 @@ import { Button, Dialog, DialogContent, TextArea, Typography } from "nfse-ds";
 import type { Relato } from "@/@types/backend";
 import { useEditarRelato } from "@/hooks/useAcoes";
 import { formatarDataHora } from "@/lib/formato";
-import { MAX_TEXTO_ANOTACAO } from "@/lib/numeros";
+import { MAX_TEXTO_ANOTACAO, validarAnotacao } from "@/lib/numeros";
 import { validarTester } from "@/lib/tester";
 import { CampoTester } from "./CampoTester";
 
@@ -14,10 +14,6 @@ interface Props {
 }
 
 const ID_FORM = "form-editar-relato";
-
-function limite(valor: string): string | undefined {
-  return valor.trim().length > MAX_TEXTO_ANOTACAO ? `Máximo de ${MAX_TEXTO_ANOTACAO} caracteres.` : undefined;
-}
 
 /** Monta o formulário só com um relato em mãos, para os valores iniciais virem dele. */
 export function DialogEditar({ relato, onClose, sugestoesTester }: Props) {
@@ -44,7 +40,6 @@ function ConteudoEditar({
     defaultValues: {
       tester: relato.testerNome ?? "",
       anotacoes: relato.anotacoes ?? "",
-      observacoes: relato.observacoes ?? "",
     },
     onSubmit: async ({ value }) => {
       try {
@@ -52,7 +47,6 @@ function ConteudoEditar({
           numeroAlm: relato.numeroAlm,
           testerNome: value.tester,
           anotacoes: value.anotacoes,
-          observacoes: value.observacoes,
         });
       } catch {
         return; // toast já exibido; o diálogo fica aberto para corrigir
@@ -103,25 +97,23 @@ function ConteudoEditar({
             );
           }}
         </form.Field>
-        {(["anotacoes", "observacoes"] as const).map((nome) => (
-          <form.Field key={nome} name={nome} validators={{ onChange: ({ value }) => limite(value) }}>
-            {(field) => {
-              const erro = field.state.meta.errors[0];
-              const tamanho = field.state.value.trim().length;
-              return (
-                <TextArea
-                  label={nome === "anotacoes" ? "Anotações" : "Observações"}
-                  rows={4}
-                  value={field.state.value}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                  onBlur={field.handleBlur}
-                  error={Boolean(erro)}
-                  hint={typeof erro === "string" ? erro : `${tamanho}/${MAX_TEXTO_ANOTACAO} caracteres`}
-                />
-              );
-            }}
-          </form.Field>
-        ))}
+        <form.Field name="anotacoes" validators={{ onChange: ({ value }) => validarAnotacao(value) }}>
+          {(field) => {
+            const erro = field.state.meta.errors[0];
+            const tamanho = field.state.value.trim().length;
+            return (
+              <TextArea
+                label="Anotações"
+                rows={5}
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={field.handleBlur}
+                error={Boolean(erro)}
+                hint={typeof erro === "string" ? erro : `${tamanho}/${MAX_TEXTO_ANOTACAO} caracteres`}
+              />
+            );
+          }}
+        </form.Field>
         <Typography variant="caption">
           Texto da RFB, gravado só no arquivo local. O relato no ALM não é alterado. Deixe em branco para
           limpar.
